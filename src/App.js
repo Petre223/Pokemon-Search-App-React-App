@@ -1,23 +1,45 @@
-import logo from './logo.svg';
+import React, {useState} from 'react';
+import axios from 'axios';
 import './App.css';
 
 function App() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [pokemon, setPokemon] = useState(null);
+  const [error, setError] = useState("");
+
+  const handleSearch = async() => {
+    setError("");
+    setPokemon(null);
+    try{
+      const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${searchTerm.toLowerCase()}`);
+      setPokemon(response.data);
+    } catch (err) {
+      setError('Pokemon not found');
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container">
+      <h1>Pokemon Search App</h1>
+      <input type="text" 
+      placeholder="Enter Pokemon name or ID" 
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)} 
+      />
+      <button onClick={handleSearch}>Search</button>
+      {error && <p className="error">{error}</p>}
+      {pokemon && (
+        <div className="pokemon-result">
+          <h2>{pokemon.name}</h2>
+          <img className="pokemon-image" 
+          src={pokemon.sprites.front_default}
+          alt={pokemon.name}
+          />
+          <p>Height: {pokemon.height}</p>
+          <p>Weight: {pokemon.weight}</p>
+          <p>Base Experience: {pokemon.base_experience}</p>
+        </div>
+      )}
     </div>
   );
 }
